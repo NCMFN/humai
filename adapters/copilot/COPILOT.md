@@ -1,4 +1,15 @@
 ---
+adapter_metadata:
+  skill_name: humanizer
+  skill_version: 2.2.0
+  last_synced: 2026-01-31
+  source_path: SKILL.md
+  adapter_id: copilot
+  adapter_format: Copilot instructions
+---
+
+
+---
 name: humanizer
 version: 2.2.0
 description: |
