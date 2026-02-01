@@ -1,4 +1,14 @@
 ---
+adapter_metadata:
+  skill_name: humanizer
+  skill_version: 2.1.1
+  last_synced: 2026-01-31
+  source_path: SKILL.md
+  adapter_id: gemini-extension
+  adapter_format: Gemini extension
+---
+
+---
 name: humanizer
 version: 2.1.1
 description: |

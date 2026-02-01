@@ -11,30 +11,94 @@ mkdir -p ~/.claude/skills
 git clone https://github.com/blader/humanizer.git ~/.claude/skills/humanizer
 ```
 
-### Manual install/update (only the skill file)
+### Manual install/update
 
-If you already have this repo cloned (or you downloaded `SKILL.md`), copy the skill file into Claude Code’s skills directory:
+Copy the desired skill file into Claude Code’s skills directory:
 
+**Standard Version (Human):**
 ```bash
-mkdir -p ~/.claude/skills/humanizer
-cp SKILL.md ~/.claude/skills/humanizer/
+cp SKILL.md ~/.claude/skills/humanizer/SKILL.md
+```
+
+**Professional Version (Pro):**
+```bash
+cp SKILL_PROFESSIONAL.md ~/.claude/skills/humanizer/SKILL_PROFESSIONAL.md
 ```
 
 ## Usage
 
-In Claude Code, invoke the skill:
+### Claude Code
 
-```
+Invoke the desired skill:
+
+**Standard:**
+```text
 /humanizer
-
 [paste your text here]
 ```
 
-Or ask Claude to humanize text directly:
+**Professional:**
+```text
+/humanizer-pro
+[paste your text here]
+```
 
+### Gemini CLI
+
+Use the extension command:
+
+```bash
+/humanizer:humanize "text to humanize"
 ```
-Please humanize this text: [your text]
-```
+
+### Google Antigravity
+
+**Skill:**
+Copy `adapters/antigravity-skill/` to your workspace skill directory (e.g., `.agent/skills/humanizer`).
+
+**Rules & Workflows:**
+See `adapters/antigravity-rules-workflows/README.md` for installation instructions.
+
+### Qwen CLI
+
+Include `adapters/qwen-cli/QWEN.md` in your context or copy its content to your Qwen system prompt.
+
+### GitHub Copilot
+
+Copy the content of `adapters/copilot/COPILOT.md` to your Copilot custom instructions.
+
+---
+
+## Adapters (Multi-Agent)
+
+`SKILL.md` remains the canonical source of truth. These adapters provide thin wrappers for other environments:
+
+- Codex CLI: `AGENTS.md`
+- Gemini CLI: `adapters/gemini-extension/`
+- Google Antigravity (skill): `adapters/antigravity-skill/`
+- Google Antigravity (rules/workflows): `adapters/antigravity-rules-workflows/`
+- Qwen CLI: `adapters/qwen-cli/`
+- GitHub Copilot: `adapters/copilot/`
+- VS Code: `adapters/vscode/`
+
+### Sync Process
+
+When sources in `src/` are updated, run the sync script to assemble variants and propagate changes to all adapters:
+
+1. **Sync:**
+    - PowerShell: `scripts/sync-adapters.ps1`
+    - *(This compiles fragments from `src/` into `SKILL.md` and `SKILL_PROFESSIONAL.md`, then updates all metadata in `adapters/`)*
+
+2. **Validate:**
+    - Python: `python scripts/validate_adapters.py`
+    - PowerShell: `scripts/validate-adapters.ps1`
+    - CMD: `scripts/validate-adapters.cmd`
+
+3. **Install:**
+    - Python: `python scripts/install_adapters.py`
+    - PowerShell: `scripts/install-adapters.ps1`
+    - CMD: `scripts/install-adapters.cmd`
+    *(This automatically places all adapter files into their respective local/workspace directories)*
 
 ## Overview
 
