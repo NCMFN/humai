@@ -2,6 +2,8 @@
 
 A Claude Code skill that removes signs of AI-generated writing from text, making it sound more natural and human.
 
+**[🇷🇺 Русская версия / Russian version →](README_RU.md)**
+
 ## Installation
 
 ### Recommended (clone directly into Claude Code skills directory)
@@ -137,6 +139,20 @@ The skill also includes a final "obviously AI generated" audit pass and a second
 - **2.1.0** - Added before/after examples for all 24 patterns
 - **2.0.0** - Complete rewrite based on raw Wikipedia article content
 - **1.0.0** - Initial release
+
+## Russian Language Support
+
+This project includes a full Russian language adaptation that addresses language-specific AI writing patterns:
+
+- **Russian-specific markers**: Verbal nouns (отглагольные существительные), bureaucratic clichés (канцелярит)
+- **Localized examples**: All 24+ patterns adapted with authentic Russian text examples
+- **Additional patterns**: Unique to Russian language AI generation
+
+👉 **[See full Russian documentation (SKILL_RU.md and README_RU.md)](README_RU.md)**
+
+Based on:
+- [Wikipedia: Signs of AI-generated text (RU)](https://ru.wikipedia.org/wiki/Википедия:Признаки_сгенерированности_текста)
+- [Habr: AI text markers in Russian](https://habr.com/ru/amp/publications/987956/)
 
 ## License
 
