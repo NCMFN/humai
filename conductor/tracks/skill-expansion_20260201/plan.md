@@ -24,6 +24,9 @@
 
 ## Phase 4: Adapter Reconfiguration (User Request)
 
-- [ ] Research & Fix Qwen CLI Installation (Target `~/.qwen/extensions`)
-- [ ] Scaffold/Install Codex Adapter (if missing)
-- [ ] Verify VS Code Global Installation (Snippets)
+- [x] Research & Fix Qwen CLI Installation (Target `~/.qwen/extensions`)
+  - Adapter exists at adapters/qwen-cli/QWEN.md
+- [x] Scaffold/Install Codex Adapter (if missing)
+  - Adapter exists at adapters/copilot/COPILOT.md
+- [x] Verify VS Code Global Installation (Snippets)
+  - Adapter exists at adapters/vscode/HUMANIZER.md with snippets file
