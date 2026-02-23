@@ -65,6 +65,47 @@ CI should validate docs and adapters without adding new mandatory third-party CL
 - Optionally run Skillshare, `npx skills`, and AIX checks in local or dedicated CI jobs
 - Fail if any step modifies canonical files unexpectedly
 
+## Submission to awesome-agent-skills
+
+To submit humanizer to the [VoltAgent/awesome-agent-skills](https://github.com/VoltAgent/awesome-agent-skills) registry:
+
+### Prerequisites
+
+- [ ] `SKILL.md` follows the canonical format
+- [ ] All adapters validate successfully (`npm run validate`)
+- [ ] CI passes on main branch
+- [ ] README includes installation and usage examples
+
+### Steps
+
+1. **Fork the repository**
+   ```bash
+   git clone https://github.com/VoltAgent/awesome-agent-skills.git
+   cd awesome-agent-skills
+   ```
+
+2. **Add your skill entry**
+   - Create a new markdown file in `skills/` directory
+   - Use the template from `skills/_template.md`
+   - Include: name, description, installation command, usage examples
+
+3. **Submit a PR**
+   - Title: `Add humanizer skill`
+   - Link to the GitHub repository
+   - Reference issue #25 for tracking
+
+4. **Post-submission**
+   - Monitor PR for review feedback
+   - Address any formatting or validation issues
+   - Once merged, update this document with the PR link
+
+### Tracking
+
+- Related issue: https://github.com/edithatogo/humanizer-next/issues/25
+- awesome-agent-skills: https://github.com/VoltAgent/awesome-agent-skills
+
+---
+
 ## Troubleshooting
 
 If a CI job fails:
