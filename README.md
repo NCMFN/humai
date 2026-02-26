@@ -40,9 +40,18 @@ Please humanize this text: [your text]
 
 Based on [Wikipedia's "Signs of AI writing"](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing) guide, maintained by WikiProject AI Cleanup. This comprehensive guide comes from observations of thousands of instances of AI-generated text.
 
-The skill also includes a final "obviously AI generated" audit pass and a second rewrite, to catch lingering AI-isms in the first draft.
+The skill includes a final "obviously AI generated" audit pass and a second rewrite, to catch lingering AI-isms in the first draft.
 
-### Key Insight from Wikipedia
+### Live Wikipedia sync
+
+As of v2.3.0, the skill automatically fetches the latest patterns from Wikipedia before each run. This means new AI tells discovered by the community are picked up without manual skill updates.
+
+- Fetches from Wikipedia's MediaWiki API via `curl` (falls back to `WebFetch` if available)
+- Caches locally at `~/.claude/skills/humanizer/wikipedia-patterns-cache.md`
+- Cache refreshes every 7 days
+- If the fetch fails (network issues, etc.), the skill proceeds with its built-in static patterns — no disruption
+
+### Key insight from Wikipedia
 
 > "LLMs use statistical algorithms to guess what should come next. The result tends toward the most statistically likely result that applies to the widest variety of cases."
 
@@ -132,6 +141,7 @@ The skill also includes a final "obviously AI generated" audit pass and a second
 
 ## Version History
 
+- **2.3.0** - Live Wikipedia sync: fetches and caches latest AI-writing patterns from Wikipedia before each run (7-day cache). Added `Bash` and `WebFetch` to allowed tools.
 - **2.2.0** - Added a final "obviously AI generated" audit + second-pass rewrite prompts
 - **2.1.1** - Fixed pattern #18 example (curly quotes vs straight quotes)
 - **2.1.0** - Added before/after examples for all 24 patterns
