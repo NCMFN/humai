@@ -1,6 +1,6 @@
 ---
 name: humanizer
-version: 2.2.0
+version: 2.3.0
 description: |
   Remove signs of AI-generated writing from text. Use when editing or reviewing
   text to make it sound more natural and human-written. Based on Wikipedia's
@@ -14,12 +14,84 @@ allowed-tools:
   - Edit
   - Grep
   - Glob
+  - Bash
+  - WebFetch
   - AskUserQuestion
 ---
 
 # Humanizer: Remove AI Writing Patterns
 
-You are a writing editor that identifies and removes signs of AI-generated text to make writing sound more natural and human. This guide is based on Wikipedia's "Signs of AI writing" page, maintained by WikiProject AI Cleanup.
+You are a writing editor that identifies and removes signs of AI-generated text to make writing sound more natural and human.
+
+## BEFORE YOU START: Refresh Wikipedia patterns
+
+This skill combines two things:
+1. **Static guidance** (personality, soul, process) — defined below in this file
+2. **Dynamic AI-writing patterns** — pulled from Wikipedia's living document
+
+**Before doing any humanization work, follow these steps to ensure your pattern knowledge is current:**
+
+### Step 1: Check the cache
+
+Look for a cached copy of Wikipedia's patterns:
+
+```
+Read ~/.claude/skills/humanizer/wikipedia-patterns-cache.md
+```
+
+### Step 2: Check cache freshness
+
+If the cache file exists, check its age:
+
+```bash
+# Returns file age in days (empty/error = file doesn't exist)
+echo $(( ($(date +%s) - $(stat -f %m ~/.claude/skills/humanizer/wikipedia-patterns-cache.md 2>/dev/null || echo 0)) / 86400 ))
+```
+
+### Step 3: Fetch if stale or missing
+
+If the cache is **missing** or **older than 7 days**, fetch the current Wikipedia article using the MediaWiki API via curl (Wikipedia blocks many automated fetchers, but curl with a browser user-agent works reliably):
+
+```bash
+curl -s -A "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36" \
+  "https://en.wikipedia.org/w/api.php?action=parse&page=Wikipedia:Signs_of_AI_writing&prop=wikitext&format=json" \
+  | python3 -c "import json,sys; print(json.load(sys.stdin)['parse']['wikitext']['*'])" \
+  > /tmp/wikipedia-ai-signs-raw.txt
+```
+
+Then read the raw wikitext from `/tmp/wikipedia-ai-signs-raw.txt` and extract:
+- All pattern categories and names
+- Words/phrases to watch for in each pattern
+- Why each pattern is a problem
+- Before/after examples if provided
+- Any patterns NOT already covered in the static list below (patterns 1-24)
+- Especially any NEW patterns added since late 2024
+
+Save the extracted patterns as clean markdown to `~/.claude/skills/humanizer/wikipedia-patterns-cache.md` with this header:
+
+```
+# Wikipedia AI Writing Patterns Cache
+# Fetched: [today's date]
+# Source: https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing
+```
+
+**Fallback:** If curl fails, try WebFetch as a backup:
+```
+WebFetch url="https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing"
+  prompt="Extract all AI writing pattern categories, word lists, and examples."
+```
+
+### Step 4: Merge and proceed
+
+Use BOTH sources when humanizing text:
+- The **static patterns (1-24)** and guidance below — these are your core reference with detailed examples
+- The **cached Wikipedia patterns** — these may contain newer tells not yet in the static list
+
+If the Wikipedia cache has patterns not covered below, apply those too. The cache supplements the static list; it doesn't replace it.
+
+**If both curl and WebFetch fail** (network issues, etc.), proceed with the static patterns below. They cover the vast majority of AI tells. Don't let a fetch failure block the work.
+
+---
 
 ## Your Task
 
@@ -483,6 +555,8 @@ Provide:
 
 ## Reference
 
-This skill is based on [Wikipedia:Signs of AI writing](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing), maintained by WikiProject AI Cleanup. The patterns documented there come from observations of thousands of instances of AI-generated text on Wikipedia.
+This skill combines static guidance with live data from [Wikipedia:Signs of AI writing](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing), maintained by WikiProject AI Cleanup. The patterns documented there come from observations of thousands of instances of AI-generated text on Wikipedia.
+
+The skill automatically fetches and caches the latest Wikipedia patterns (refreshing every 7 days) so that new AI tells discovered by the community are picked up without manual skill updates.
 
 Key insight from Wikipedia: "LLMs use statistical algorithms to guess what should come next. The result tends toward the most statistically likely result that applies to the widest variety of cases."
