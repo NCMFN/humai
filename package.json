@@ -17,7 +17,9 @@
     "test": "node --test test/*.test.js && node scripts/run-tests.js",
     "build": "node scripts/compile-skill.js",
     "install:adapters": "node scripts/install-adapters.js",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "release": "echo 'Release script - configure for npm publish when ready'",
+    "version": "npm run sync && git add adapters/"
   },
   "lint-staged": {
     "**/*.{js,mjs,ts}": "eslint --fix",
