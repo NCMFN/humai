@@ -310,9 +310,21 @@ Avoiding AI patterns is only half the job. Sterile, voiceless writing is just as
 
 ---
 
+### 19. Primary Single Quotes (Code-Style Quotation)
+
+**Problem:** AI models trained on code often use single quotes as primary delimiters.
+
+**Before:**
+> stated, 'This is a pattern.'
+
+**After:**
+> stated, "This is a pattern."
+
+---
+
 ## COMMUNICATION PATTERNS
 
-### 19. Collaborative Communication Artifacts
+### 20. Collaborative Communication Artifacts
 
 **Words to watch:** I hope this helps, Of course!, Certainly!, You're absolutely right!, Would you like..., let me know, here is a...
 
@@ -326,7 +338,7 @@ Avoiding AI patterns is only half the job. Sterile, voiceless writing is just as
 
 ---
 
-### 20. Knowledge-Cutoff Disclaimers
+### 21. Knowledge-Cutoff Disclaimers
 
 **Words to watch:** as of [date], Up to my last training update, While specific details are limited/scarce..., based on available information...
 
@@ -340,7 +352,7 @@ Avoiding AI patterns is only half the job. Sterile, voiceless writing is just as
 
 ---
 
-### 21. Sycophantic/Servile Tone
+### 22. Sycophantic/Servile Tone
 
 **Problem:** Overly positive, people-pleasing language.
 
@@ -354,7 +366,7 @@ Avoiding AI patterns is only half the job. Sterile, voiceless writing is just as
 
 ## FILLER AND HEDGING
 
-### 22. Filler Phrases
+### 23. Filler Phrases
 
 **Before → After:**
 - "In order to achieve this goal" → "To achieve this"
@@ -366,7 +378,7 @@ Avoiding AI patterns is only half the job. Sterile, voiceless writing is just as
 
 ---
 
-### 23. Excessive Hedging
+### 24. Excessive Hedging
 
 **Problem:** Over-qualifying statements.
 
@@ -378,7 +390,7 @@ Avoiding AI patterns is only half the job. Sterile, voiceless writing is just as
 
 ---
 
-### 24. Generic Positive Conclusions
+### 25. Generic Positive Conclusions
 
 **Problem:** Vague upbeat endings.
 
@@ -465,7 +477,7 @@ Provide:
 - Removed chatbot artifacts ("Great question!", "I hope this helps!", "Let me know if...")
 - Removed significance inflation ("testament", "pivotal moment", "evolving landscape", "vital role")
 - Removed promotional language ("groundbreaking", "nestled", "seamless, intuitive, and powerful")
-- Removed vague attributions ("Industry observers")
+- Removed vague attributions ("Industry observers") and replaced with specific sources (Google study, named engineers, Uplevel study)
 - Removed superficial -ing phrases ("underscoring", "highlighting", "reflecting", "contributing to")
 - Removed negative parallelism ("It's not just X; it's Y")
 - Removed rule-of-three patterns and synonym cycling ("catalyst/partner/foundation")
@@ -477,6 +489,8 @@ Provide:
 - Removed excessive hedging ("could potentially be argued that... might have some")
 - Removed filler phrases ("In order to", "At its core")
 - Removed generic positive conclusion ("the future looks bright", "exciting times lie ahead")
+- Replaced media name-dropping with specific claims from specific sources
+- Used simple sentence structures and concrete examples
 - Made the voice more personal and less "assembled" (varied rhythm, fewer placeholders)
 
 ---
