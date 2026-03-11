@@ -180,20 +180,21 @@ def create_figure_5():
     # proposed ensemble methods at optimal efficiency-accuracy tradeoff
 
     models = {
-        'Statistical (ARIMA, ES)': {'time': [0.5, 1.2, 0.8], 'rmse': [2.5, 2.3, 2.6], 'color': 'grey', 'marker': 's'},
-        'Deep Learning (LSTM, GRU)': {'time': [45.0, 55.0, 60.0], 'rmse': [1.2, 1.15, 1.1], 'color': 'red', 'marker': '^'},
-        'Base ML (LGBM, XGB)': {'time': [3.0, 5.0, 8.0], 'rmse': [1.05, 1.08, 1.15], 'color': 'blue', 'marker': 'o'},
-        'Proposed Ensembles': {'time': [6.0, 10.0], 'rmse': [0.95, 0.90], 'color': 'green', 'marker': '*'}
+        'Statistical (ARIMA, ES)': {'time': [0.5, 1.2, 0.8], 'rmse': [2.5, 2.3, 2.6], 'color': '#7f8c8d', 'marker': 's', 'size': 120},
+        'Deep Learning (LSTM, GRU)': {'time': [45.0, 55.0, 60.0], 'rmse': [1.2, 1.15, 1.1], 'color': '#c0392b', 'marker': '^', 'size': 150},
+        'Base ML (LGBM, XGB)': {'time': [3.0, 5.0, 8.0], 'rmse': [1.05, 1.08, 1.15], 'color': '#2980b9', 'marker': 'o', 'size': 150},
+        'Proposed Ensembles': {'time': [6.0, 10.0], 'rmse': [0.95, 0.90], 'color': '#27ae60', 'marker': '*', 'size': 350}
     }
 
-    plt.figure(figsize=(10, 7))
+    # Increase DPI and figure size for better resolution in papers
+    plt.figure(figsize=(12, 8), dpi=300)
 
     all_time = []
     all_rmse = []
 
     for name, m_info in models.items():
-        s = 150 if name == 'Proposed Ensembles' else 80
-        plt.scatter(m_info['time'], m_info['rmse'], label=name, color=m_info['color'], marker=m_info['marker'], s=s)
+        plt.scatter(m_info['time'], m_info['rmse'], label=name, color=m_info['color'],
+                    marker=m_info['marker'], s=m_info['size'], edgecolors='black', linewidth=1.5, zorder=3)
         all_time.extend(m_info['time'])
         all_rmse.extend(m_info['rmse'])
 
@@ -206,14 +207,45 @@ def create_figure_5():
             pareto_front.append((t, r))
 
     pf_t, pf_r = zip(*pareto_front)
-    plt.plot(pf_t, pf_r, 'k--', alpha=0.5, label='Pareto Frontier')
+    plt.plot(pf_t, pf_r, color='#8e44ad', linestyle='--', linewidth=2.5, label='Pareto Frontier', zorder=2)
 
-    plt.title('FIGURE 5: Training Time vs. RMSE', fontsize=14)
-    plt.xlabel('Training Time (Minutes) - Log Scale')
-    plt.ylabel('RMSE (kWh)')
+    # Shade the area above the pareto frontier lightly to emphasize it
+    plt.fill_between(pf_t, pf_r, 3.0, color='#9b59b6', alpha=0.05, zorder=1)
+
+    # Annotate specific models for clarity
+    annotations = [
+        (0.5, 2.5, 'ARIMA'),
+        (10.0, 0.90, 'Stacking\nEnsemble'),
+        (6.0, 0.95, 'Weighted\nEnsemble'),
+        (3.0, 1.05, 'LightGBM'),
+        (45.0, 1.2, 'LSTM')
+    ]
+    for t, r, text in annotations:
+        plt.annotate(text, (t, r), xytext=(8, 8), textcoords='offset points',
+                     fontsize=12, fontweight='bold',
+                     bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="gray", alpha=0.8), zorder=4)
+
+    plt.title('Training Time vs. RMSE (Efficiency-Accuracy Tradeoff)', fontsize=18, fontweight='bold', pad=20)
+    plt.xlabel('Training Time (Minutes) - Log Scale', fontsize=14, fontweight='bold')
+    plt.ylabel('Root Mean Squared Error (kWh)', fontsize=14, fontweight='bold')
+
     plt.xscale('log')
-    plt.legend()
-    plt.grid(True, which="both", ls="--", alpha=0.5)
+    plt.ylim(0.8, 2.8)
+
+    # Better tick labels
+    plt.xticks([0.5, 1, 5, 10, 50, 100], ['0.5', '1', '5', '10', '50', '100'], fontsize=12)
+    plt.yticks(fontsize=12)
+
+    plt.legend(fontsize=12, loc='upper right', framealpha=0.9, edgecolor='black')
+
+    # Enhanced grid
+    plt.grid(True, which="major", ls="-", alpha=0.4, color='gray')
+    plt.grid(True, which="minor", ls=":", alpha=0.2, color='gray')
+
+    # Remove top and right spines for cleaner look
+    sns.despine()
+
+    plt.tight_layout()
     save_fig(5, 'time_vs_rmse')
 
 # FIGURE 6: Optimal Ensemble Weight Distribution
