@@ -6,7 +6,17 @@ from scipy.stats import lognorm
 
 # Set global style
 sns.set_theme(style="whitegrid")
-plt.rcParams['figure.dpi'] = 300
+
+plt.rcParams.update({
+    'font.size': 11,
+    'axes.titlesize': 13,
+    'axes.labelsize': 11,
+    'xtick.labelsize': 10,
+    'ytick.labelsize': 10,
+    'figure.dpi': 300,
+    'savefig.dpi': 300
+})
+
 
 # Function to save figures
 def save_fig(fig_num, name):
