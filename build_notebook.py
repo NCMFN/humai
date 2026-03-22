@@ -12,7 +12,8 @@ add_markdown(nb, "# Automated Classification of Infant Dermatitis vs. Healthy Sk
 
 add_markdown(nb, "## 1. Setup and Imports\n\nFirst, we'll install/import the required libraries and mount Google Drive if necessary, or just set up our environment.")
 
-setup_code = """import os
+setup_code = """!pip install pydot graphviz
+import os
 import zipfile
 import shutil
 import numpy as np
@@ -20,6 +21,10 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import cv2
+
+# For plotting models
+import pydot
+import graphviz
 
 import tensorflow as tf
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
@@ -181,6 +186,20 @@ predictions = Dense(1, activation='sigmoid')(x)
 model = Model(inputs=base_model.input, outputs=predictions)
 
 model.summary()
+
+# Plot the system architecture
+print("\\nGenerating System Architecture Diagram...")
+try:
+    tf.keras.utils.plot_model(model, to_file='system_architecture.png', show_shapes=True, show_layer_names=True)
+    img = cv2.imread('system_architecture.png')
+    if img is not None:
+        plt.figure(figsize=(10, 10))
+        plt.imshow(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
+        plt.axis('off')
+        plt.title('System Architecture')
+        plt.show()
+except Exception as e:
+    print(f"Could not plot model architecture. Ensure pydot and graphviz are installed. Error: {e}")
 """
 add_code(nb, model_dev_code)
 
@@ -241,6 +260,9 @@ def plot_history(history):
     ax2.set_ylabel('Accuracy')
     ax2.legend()
 
+    plt.tight_layout()
+    plt.savefig('training_curves.png', dpi=300)
+    print("Saved training curves to 'training_curves.png'")
     plt.show()
 
 if 'history' in locals():
@@ -269,11 +291,18 @@ sns.heatmap(cm, annot=True, fmt='d', cmap='Blues',
 plt.title('Confusion Matrix')
 plt.xlabel('Predicted Label')
 plt.ylabel('True Label')
+plt.tight_layout()
+plt.savefig('confusion_matrix.png', dpi=300)
+print("Saved confusion matrix to 'confusion_matrix.png'")
 plt.show()
 
-# Classification Report
-print("\nClassification Report:")
-print(classification_report(y_true, y_pred_classes, target_names=['Healthy', 'Dermatitis']))
+# Classification Report Table
+print("\\nClassification Report Table:")
+report_dict = classification_report(y_true, y_pred_classes, target_names=['Healthy', 'Dermatitis'], output_dict=True)
+report_df = pd.DataFrame(report_dict).transpose()
+report_df.to_csv('classification_results_table.csv')
+print("Saved classification results table to 'classification_results_table.csv'")
+display(report_df.round(4))
 
 # Display Correctly vs Incorrectly Classified Images
 def show_classified_samples(val_gen, y_true, y_pred, is_correct, num_samples=5):
@@ -297,7 +326,11 @@ def show_classified_samples(val_gen, y_true, y_pred, is_correct, num_samples=5):
         pred_label = "Dermatitis" if y_pred[idx] == 1 else "Healthy"
         plt.title(f"True: {true_label}\\nPred: {pred_label}")
         plt.axis('off')
-    plt.suptitle(f"{'Correctly' if is_correct else 'Incorrectly'} Classified Images", y=1.1)
+    status = "Correctly" if is_correct else "Incorrectly"
+    plt.suptitle(f"{status} Classified Images", y=1.1)
+    plt.tight_layout()
+    plt.savefig(f'{status.lower()}_classified_images.png', dpi=300)
+    print(f"Saved {status.lower()} classified images to '{status.lower()}_classified_images.png'")
     plt.show()
 
 print("\\nCorrectly Classified Images:")
@@ -362,6 +395,11 @@ def display_gradcam(img_path, heatmap, alpha=0.4):
     plt.imshow(superimposed_img)
     plt.title("Grad-CAM")
     plt.axis('off')
+
+    filename = os.path.basename(img_path)
+    plt.tight_layout()
+    plt.savefig(f'gradcam_{filename}', dpi=300)
+    print(f"Saved Grad-CAM visualization to 'gradcam_{filename}'")
     plt.show()
 
 # Get sample images
