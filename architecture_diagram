@@ -1,0 +1,67 @@
+// Community Isolation Risk Prediction Architecture
+digraph {
+	bgcolor=white dpi=300 fontname=Helvetica rankdir=TD size="10,10"
+	node [color="#333333" fontname=Helvetica penwidth=1.5 shape=box style=filled]
+	edge [color="#666666" fontname=Helvetica penwidth=1.5]
+	A [label="Raw Dataset ZIP
+(Dataset Upload)" fillcolor="#f9f2fb"]
+	C1 [label="train.csv" fillcolor="#f9f2fb" shape=cylinder]
+	C2 [label="test.csv" fillcolor="#f9f2fb" shape=cylinder]
+	C3 [label="sample_submission.csv" fillcolor="#f9f2fb" shape=cylinder]
+	B [label="Data Extraction" fillcolor="#e6f2ff"]
+	D [label="Data Cleaning &
+Handling Missing Values" fillcolor="#e6f2ff"]
+	E [label="Exploratory Data Analysis (EDA)" fillcolor="#e6f2ff"]
+	F [label="Insights
+(Plots & Correlations)" fillcolor="#fff2e6" shape=note]
+	G [label="Feature Engineering
+(Scaling, Encoding, Target Transform)" fillcolor="#e6f2ff"]
+	G1 [label="Scaled Numerical Features" fillcolor="#e6ffe6"]
+	G2 [label="Derived Features
+(Vulnerability, Impact)" fillcolor="#e6ffe6"]
+	G3 [label="Target Transformation
+(Isolation Risk Score)" fillcolor="#e6ffe6"]
+	H [label="Model Training &
+Validation Split (80/20)" fillcolor="#e6f2ff"]
+	I1 [label="Linear Regression
+(Baseline)" fillcolor="#e6ffe6" shape=component]
+	I2 [label="Random Forest Regressor
+(Ensemble)" fillcolor="#e6ffe6" shape=component]
+	I3 [label="XGBoost Regressor
+(Gradient Boosting)" fillcolor="#e6ffe6" shape=component]
+	J [label="Model Evaluation
+(RMSE, MAE, R²)" fillcolor="#e6f2ff"]
+	K [label="Model Interpretation
+(SHAP Values)" fillcolor="#e6f2ff"]
+	L [label="Feature Importance &
+Insight Generation" fillcolor="#f9f2fb"]
+	M [label="Predict on Test Data
+(Select Best Model)" fillcolor="#e6f2ff"]
+	N [label="Final submission.csv" fillcolor="#f9f2fb" shape=note]
+	A -> B
+	B -> C1
+	B -> C2
+	B -> C3
+	C1 -> D
+	C2 -> D
+	D -> E
+	E -> F [label=" generates"]
+	D -> G
+	G -> G1
+	G -> G2
+	G -> G3
+	G1 -> H
+	G2 -> H
+	G3 -> H
+	H -> I1
+	H -> I2
+	H -> I3
+	I1 -> J
+	I2 -> J
+	I3 -> J
+	J -> K
+	K -> L
+	J -> M [label=" Best Model"]
+	C3 -> M
+	M -> N
+}
