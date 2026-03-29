@@ -407,13 +407,61 @@ Avoiding AI patterns is only half the job. Sterile, voiceless writing is just as
 8. Prompt: "Now make it not obviously AI generated."
 9. Present the final version (revised after the audit)
 
+## CORE METHODOLOGY: TWO-PASS REVISION FRAMEWORK
+
+### PASS ONE — DIAGNOSTIC ANALYSIS
+Before rewriting any text, perform a structured audit:
+
+1. **Flag AI-signature phrases common in academic contexts:**
+   - Overused transitional constructions: "It is worth noting that," "This paper leverages," "robust framework," "delve into," "shed light on," "multifaceted," "It is imperative that"
+   - Hollow intensifiers: "significantly," "substantially," "comprehensively" (when not quantified)
+   - Passive-heavy constructions used to sound formal rather than for scientific necessity
+
+2. **Identify sentence-length monotony:**
+   - Flag sequences of 3+ sentences within the same length band (e.g., all 18–22 words)
+   - Mark paragraphs lacking structural variety (all topic-sentence-led)
+
+3. **Lock all facts against mutation:**
+   - Numerical values, percentages, and statistical results
+   - Author names, institutional affiliations, dataset names
+   - Dates, geographic references, and version identifiers
+   - All in-text citations and reference list entries (never alter citation formatting)
+
+4. **Identify disciplinary register and audience:**
+   - Is this a methods section, literature review, discussion, or abstract?
+   - What is the target venue? (IEEE conference, Elsevier journal, etc.)
+   - Calibrate formality to match that venue's published style
+
+### PASS TWO — PRECISION RECONSTRUCTION
+Rewrite with the diagnostic audit as your guide:
+
+1. Preserve every locked fact exactly as marked — no paraphrasing of data points
+2. Introduce natural sentence rhythm by mixing short declarative sentences with longer analytical ones (target variance: 8–30 words, never uniform)
+3. Replace abstract verbs with discipline-appropriate concrete ones:
+   - "leverage" → "apply," "employ," "use"
+   - "utilize" → "use"
+   - "facilitate" → "enable," "support," "allow"
+   - "demonstrate" → "show," "reveal," "confirm" (based on actual meaning)
+4. Eliminate template paragraph structures (e.g., "The remainder of this paper is organized as follows")
+5. Preserve all disciplinary hedging that is epistemically necessary ("may suggest," "appears to indicate") — do not strip legitimate academic caution
+6. Maintain third-person academic voice unless the source is explicitly first-person
+
+## SKILL FILE ROUTING LOGIC
+
+On receiving input, the Skill file should:
+1. Detect section type (abstract / introduction / literature review / methodology / results / discussion / conclusion)
+2. Select the appropriate register preset for that section type
+3. Execute Pass One (diagnosis) with section-specific flagging rules
+4. Execute Pass Two (reconstruction) under the constraints identified
+5. Run all four validation scripts (`./router.sh <original_file> <humanized_file>`)
+6. Return the revised text with a brief audit report: phrases removed, sentence variance achieved, facts confirmed intact
+
 ## Output Format
 
-Provide:
+The output format must strictly include three distinct sections:
 1. Draft rewrite
-2. "What makes the below so obviously AI generated?" (brief bullets)
+2. anti-AI pass analysis (bullet points identifying AI-generated characteristics)
 3. Final rewrite
-4. A brief summary of changes made (optional, if helpful)
 
 ---
 
