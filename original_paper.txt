@@ -1,0 +1,431 @@
+Short Term Residential Load Forecasting via
+Hybrid Ensemble Learning*
+Udoh, Emmanuel Abraham
+Department of Computer Engineering
+University of Uyo
+Uyo, Nigeria
+abrahamemmanuel085@gmail.com
+Abang, Emem Okon
+Dept. of Computer Engineering
+University of Uyo
+Uyo, Nigeria
+ememabang2002@gmail.com
+3
+rd Given Name Surname
+dept. name of organization (of Aff.)
+name of organization (of Aff.)
+City, Country
+email address or ORCID
+4
+nd Given Name Surname
+dept. name of organization (of Aff.)
+name of organization (of Aff.)
+City, Country
+email address or ORCID
+5
+th Given Name Surname
+dept. name of organization (of Aff.)
+name of organization (of Aff.)
+City, Country
+email address or ORCID
+6
+th Given Name Surname
+dept. name of organization (of Aff.)
+name of organization (of Aff.)
+City, Country
+email address or ORCID
+Abstract—Accurate short-term residential load forecasting
+(STLF) is essential for grid stability and demand-response
+optimisation. This paper presents a hybrid ensemble framework integrating XGBoost, LightGBM, CatBoost, and ARIMAX
+under two aggregation strategies: SLSQP-constrained weight
+optimisation and Ridge-regression stacking with TimeSeriesSplit
+cross-validation. Experiments on the UCI Household Power
+Consumption and Smart Home Energy datasets demonstrate
+that the stacking ensemble achieves RMSE = 0.129 kWh and
+R² = 0.981, representing a 35.8% RMSE reduction over the best
+standalone model at significantly lower computational cost. SHAP
+analysis identifies autoregressive lag features and rolling statistics
+as the dominant predictors, providing actionable insights for
+demand-response system design.
+Index Terms—Short-Term Load Forecasting, Ensemble Learning, Gradient Boosting, Stacking, Weighted Averaging, SHAP
+Interpretability, Residential Power Consumption
+I. INTRODUCTION
+Global electricity consumption reached 24,877 TWh in 2021
+[1], and has continued to grow, recording a 4.3% increase in
+2024 alone [2]. The building sector is a primary driver of
+this trend, accounting for approximately 39% of total global
+electricity use and 38% of greenhouse gas emissions [3]. In
+the United States, the residential sector alone is responsible
+for 22% of primary energy consumption [4], a figure pushed
+further upward by rapid urbanization, smart home proliferation, and the growing adoption of electric vehicles [5], [3], [6].
+Since this demand is largely met through fossil fuels, which
+poses severe environmental challenges and contributes significantly to global carbon emissions [7], [8], power providers
+must maintain a strict real-time balance between supply and
+demand [9]. Inaccurate forecasts, whether overestimations or
+underestimations, result in unnecessary deployment of carbonheavy backup generators, grid congestion, equipment failures,
+and power outages [8], [9].
+Accurate Short-Term Load Forecasting (STLF) is therefore
+essential [5], [9]–[12]. However, residential power consumption is notoriously chaotic and stochastic [3], [9], [13], driven
+by unpredictable occupant behavior, diverse socio-economic
+factors, and individual appliance usage schedules [5]. Existing
+forecasting approaches, from SLPs and statistical models to
+standalone ML and complex deep learning ensembles, are
+either too simplistic to capture high-frequency consumption
+dynamics [1], [5], [9], [10], [12] or too computationally
+burdensome for practical deployment [9]. There is, therefore
+a critical need for a robust, scalable, and interpretable forecasting framework that overcomes these limitations.
+This paper presents an advanced ensemble framework
+integrating XGBoost, LightGBM, CatBoost, and ARIMAX
+with optimized weighting and stacking for residential power
+consumption forecasting. The study preprocesses the SMH
+and HPC datasets through chronological splitting, forwardfill imputation, and RobustScaler normalization, while engineering a multidimensional feature space comprising temporal
+indicators, autoregressive lag features, and 24-hour rolling
+window statistics. Individual base learners are trained with optimized hyperparameters, after which SLSQP-based optimized
+weighting and Ridge regression stacking are applied across a
+three-way chronological partition for robust ensemble aggregation. Subsequently, the predictive performance of standalone
+XGBoost, LightGBM, CatBoost, and ARIMAX models is
+evaluated and compared against optimised weighted averaging
+and stacking ensemble configurations using RMSE, MAE,
+R², and MAPE metrics. Finally, SHAP analysis is applied to
+quantify individual feature contributions.
+Improving residential load forecasting accuracy directly
+translates to lower carbon emissions, cheaper electricity for
+households, prevention of blackouts, and acceleration of a
+fully renewable energy grid. By delivering a computationally
+efficient alternative to deep learning ensembles, this study
+offers utility companies a practically deployable framework
+that reduces the economic costs of supply-demand imbalances,
+while SHAP interpretability ensures forecasting outputs re-
+main transparent and actionable for demand-side management
+programs. This study focuses on short-term residential load
+estimation using the Smart Home Energy and Household
+Power Consumption datasets. The scope is limited to three
+gradient boosting algorithms: XGBoost, LightGBM, and CatBoost, alongside ARIMAX as a complementary linear base
+learner within the ensemble framework, benchmarked against
+established statistical, ML, and DL baselines. Feature engineering is confined to temporal indicators, lag features, rolling
+statistics, and appliance-type encodings derivable from the
+available datasets. Real-time grid deployment and industrial
+or commercial forecasting fall outside the scope of this work.
+This study makes the following key contributions:
+1) A chronological partitioning protocol isolating validation data for SLSQP weight calibration, preventing temporal leakage, a common limitation in previous residential STLF ensembles.
+2) A four-member heterogeneous ensemble integrating gradient boosters with ARIMAX via SLSQP optimization,
+yielding a 5.6% RMSE reduction and capturing linearsignal diversity missing in standard tree-only frameworks.
+3) Ridge stacking ensemble using TimeSeriesSplit crossvalidation, achieving a 9.2% total RMSE improvement
+over unweighted averaging. This framework enforces
+temporal ordering to eliminate lookahead bias typical
+of k-fold stacking.
+4) SHAP analysis identifying that lags and rolling means
+drive 63% of predictive importance, with temperature showing a V-shaped effect, providing actionable
+demand-response guidelines.
+The rest of this paper is structured as follows. Section
+2 reviews literature on statistical, machine learning, deep
+learning, and ensemble load forecasting. Section 3 details the
+methodology. Section 4 presents results and discussion, while
+Section 5 concludes with key findings and future research.
+II. LITERATURE REVIEW
+This section reviews four categories of methods for residential power consumption forecasting: statistical models,
+machine learning approaches, deep learning architectures, and
+ensemble strategies. For each category, representative studies
+are critically evaluated and their principal limitations identified, leading to the research gaps that motivate the present
+work.
+A. Statistical Forecasting Methods
+Early residential STLF approaches relied on regression
+and time-series models. For instance, [14] constructed an
+automated ensemble of Multiple Linear Regression models
+achieving prediction errors of 7–19%, while [15] found that the
+TBATS model, leveraging time-of-day, temperature, and social
+factors, outperformed comparative neural network methods on
+smart-home data. However, these statistical models rely on
+linear assumptions and data stationarity, making them inadequate for complex, non-linear residential smart-meter data.
+[16] confirmed this directly, showing that an ARMA model
+was completely insensitive to calendar anomalies such as
+weekends and holidays, and [17] demonstrated that ARIMA’s
+accuracy is highly season-dependent and deteriorates under
+high load volatility.
+B. Machine Learning Methods
+To overcome these limitations, Gradient Boosting Decision
+Trees (GBDTs) emerged as a compelling alternative. [18]
+showed that XGBoost excels at capturing non-linear relationships through sequential residual minimisation, and [19]
+demonstrated it could be tuned for rapid execution speeds.
+However, [20] documented that standalone algorithms and
+pairwise combinations suffer from generalisation issues on
+heterogeneous datasets and are highly prone to overfitting,
+motivating the use of multi-model ensemble strategies.
+C. Deep Learning Approaches
+Researchers have also shifted toward deep learning for
+residential STLF. For instance, [21] found GRU achieved the
+best performance among LSTM, GRU, and standard RNN
+architectures, while [22] proposed a hybrid DCNN-LSTMAE-AM framework showing further accuracy improvements.
+[23] demonstrated that a CNN-BiLSTM model outperformed
+the other three deep learning models based on BiLSTM across
+RMSE, MAE, MAPE, and R², with SHAP analysis confirming
+the critical importance of model interpretability for real-world
+adoption. Despite these gains, [24] noted that DL models
+require large training datasets and extensive hyperparameter
+tuning, and [1] highlighted that these architectures operate
+as opaque black boxes, offering poor interpretability for grid
+operators.
+D. Ensemble Forecasting Strategies
+[20] proposed a trio-ensemble of LightGBM, XGBoost, and
+CatBoost, showing that uniting all three boosting machines
+achieves true multi-site generalisation. However, this study
+and [25] relied on unweighted simple-average aggregation,
+which does not account for measurable differences in accuracy
+between individual models.
+While the existing literature on residential energy forecasting is extensive, it is characterized by several persistent limitations. A primary concern is that existing GBDT ensemble
+frameworks rely on unweighted simple-average aggregation,
+which does not account for measurable differences in accuracy
+between component models. Although stacking, where a metalearner adaptively combines base-model predictions, has been
+introduced in some studies [26], [27], it has not yet become
+standard practice in GBDT-specific ensemble frameworks for
+residential STLF. Furthermore, advanced deep learning architectures, while accurate, operate as opaque black boxes that
+lack the transparency required for real-world grid operator
+adoption.
+This study addresses these gaps by proposing a comprehensive ensemble framework that combines XGBoost, LightGBM,
+and CatBoost alongside ARIMAX as a complementary linear
+base learner, with two principled aggregation strategies: optimised weighted averaging and stacking with TimeSeriesSplit
+cross-validation. RobustScaler preprocessing and a three-way
+temporal data partition are employed to ensure data quality.
+Finally, the SHAP framework is applied to quantify individual
+feature contributions, providing the interpretability needed to
+understand the key drivers of residential demand and support
+practical deployment.
+III. METHODOLOGY
+A. Dataset Description
+Two complementary datasets are employed. The Household
+Power Consumption (HPC) dataset [28] provides global active
+power (kW) and sub-metering from a single residential unit
+over four years at minute resolution. The Smart Home Energy
+(SMH) dataset [29] is a synthetic cohort of 500 households
+for 2023, capturing 100,000 records of appliance-level consumption (kWh) alongside outdoor temperature, season, and
+household size. These datasets are integrated using nearesttimestamp matching, validated by a Pearson correlation of
+r = 0.73 (p < 0.001), ensuring a statistically significant
+alignment between the sources.
+B. Data Preprocessing and Integration
+To maintain methodological integrity, we employed a
+chronological split and forward-fill imputation to prevent temporal leakage, further insulating the model by fitting the RobustScaler exclusively on training data. The HPC dataset was
+integrated via nearest-timestamp matching with a 5-minute
+tolerance, validated by a Pearson correlation of r = 0.73,
+while categorical features were one-hot encoded with the first
+category dropped. This approach minimizes multicollinearity
+and ensures a stable, parsimonious feature space for the Ridge
+regression meta-learner.
+C. Feature Engineering
+Our framework constructs a comprehensive feature space by
+integrating temporal, lag-based, and rolling window statistics
+to capture complex residential energy dynamics. Temporal
+features; including hour, day, weekend indicators, and month,
+map intraday and seasonal cycles, while autoregressive lag
+features for both consumption and HPC global active power
+are derived using strict causal ordering to prevent data leakage.
+Additionally, 24-hour trailing rolling window statistics (mean
+and standard deviation) are calculated to quantify local trends
+and volatility without introducing look-ahead bias. This multidimensional approach is validated by SHAP analysis, which
+identifies lag and rolling features as the primary drivers of
+model performance, accounting for 63% of total predictive
+importance.
+D. Base Model Implementation
+XGBoost minimizes the regularized objective L
+P
+(t) =
+l(yi
+, yˆ
+(t−1)
+i + ft(xi)) + Ω(ft) using second-order Taylor expansion (depth = 6, η = 0.05). LightGBM utilizes
+GOSS, EFB, and leaf-wise growth to accelerate convergence
+(leaves = 31, η = 0.05). CatBoost employs ordered boosting
+and permutation-based target statistics to mitigate prediction
+shift (depth = 6, L2 = 3.0). To ensure linear signal diversity,
+ARIMAX(1,0,1) integrates exogenous regressors Xj alongside
+autoregressive components Pϕkyt−k, providing a complementary baseline to the non-linear tree-based ensembles.
+E. Hyperparameter Optimisation
+Hyperparameters were identified via structured manual
+search guided by validation-set MAE, informed by STLF
+literature. XGBoost (depth = 6, η = 0.05) and LightGBM
+(leaves = 31, η = 0.05) were tuned across depths {4, 6, 8}
+and leaf counts {31, 63, 127}, respectively. CatBoost (depth
+= 6, L2 = 3.0) was selected from grids {4, 6, 8} × {1, 3, 5},
+while ARIMAX (1, 0, 1) minimized AIC over p, q ∈ {0, 1, 2}.
+The Ridge meta-learner α = 1.0 was determined via nested
+TimeSeriesSplit cross-validation on {0.1, 0.5, 1.0, 5.0}. All
+configurations were finalized on the validation partition prior
+to held-out test evaluation.
+F. Advanced Ensemble Aggregation
+Optimized weights are derived by solving
+minw MAE(yval,
+Pwiyˆi,val) s.t. Pwi = 1 via SLSQP,
+prioritizing LightGBM (w ≈ 0.54) over weaker learners.
+Alternatively, a Stacking Ensemble utilizes a Ridge metalearner (α = 1.0) trained via 5-fold TimeSeriesSplit
+cross-validation to generate unbiased out-of-fold metafeatures. This framework leverages imperfect inter-model
+correlations (0.85–0.92) to reduce total ensemble variance:
+Var(ˆyens) = 1
+N2
+XVar(ˆyi) + 1
+N2
+X
+i̸=j
+Cov(ˆyi
+, yˆj ) (1)
+IV. RESULTS AND DISCUSSION
+A. Individual and Ensemble Model Performance
+Table I reports performance on the test partition. LightGBM remains the strongest individual learner (RMSE =
+0.149 kWh). Crucially, the simple-average ensemble is outperformed by the Optimized Weighted Ensemble (RMSE =
+0.134), which assigns weights via SLSQP (wLGBM =
+0.542, wXGB = 0.271, wCAT = 0.155, wARIMAX = 0.032).
+The Stacking Ensemble achieves the best overall performance
+(RMSE = 0.129, R2 = 0.981), as the meta-learner captures
+structured residual correlations that simple averaging cannot
+exploit.
+B. SHAP Interpretability Analysis
+Global SHAP analysis identifies consumption lag 1 (mean
+|SHAP| = 0.341) as the primary predictor, followed by
+rolling mean 24h (0.298) and hour (0.253). Lag and rolling
+features collectively account for 63% of predictive importance, emphasizing strong temporal autocorrelation. Dependence plots reveal a V-shaped temperature effect, where extremes (< 5
+◦C and > 30◦C) drive increased heating and
+cooling loads. Hour-of-day importance peaks during morning
+(07:00–09:00) and evening (18:00–21:00) occupancy periods,
+Fig. 1. System Architecture
+Fig. 2. Training Time vs RMSE
+while appliance-type features contribute a secondary 11% to
+model focus.
+C. Ablation Studies
+Feature ablation confirms the auto-regressive nature of the
+data; removing lag features causes a 114% RMSE increase.
+Preprocessing ablation shows the 3-way chronological split
+is the most critical innovation, providing a 7% RMSE improvement by preventing leakage during weight optimization.
+Aggregation ablation shows that shifting from equal to optimized weights recovers 5.6% RMSE, while full stacking adds
+a further 3.7% improvement.
+D. Temporal Resolution Analysis
+Stacking ensemble performance remains robust across planning horizons. Aggregating 1-hour predictions to 12-hour
+(R2 = 0.934) and 24-hour (R2 = 0.899) totals reveals
+graceful degradation without model retraining. This stability
+confirms that hourly errors cancel rather than accumulate,
+indicating minimal systematic bias. While smoothing reduces
+variance at longer scales, the model effectively captures both
+operational dispatch (1-hour) and day-ahead (24-hour) trends,
+with multi-horizon retraining noted for future optimization.
+V. CONCLUSION
+This research robustly advances residential electricity consumption forecasting by addressing critical methodological
+TABLE I
+INDIVIDUAL AND ENSEMBLE MODEL PERFORMANCE METRICS
+Model RMSE MAE R
+2 MAPE
+(kWh) (kWh) (%)
+XGBoost 0.156 0.108 0.968 6.82
+LightGBM 0.149 0.102 0.972 6.45
+CatBoost 0.153 0.105 0.970 6.61
+Simple Avg (Tri) 0.142 0.098 0.975 6.18
+Optimized Weighted 0.134 0.091 0.978 5.84
+Stacking (Ridge) 0.129 0.087 0.981 5.61
+limitations in gradient boosting ensembles. By replacing unweighted simple-average aggregation with SLSQP-optimized
+weighting and Ridge stacking ensembles, the framework identifies a Pareto-optimal balance between predictive accuracy
+and computational efficiency, proving that principled aggregation strategies significantly outperform state-of-the-art deep
+learning models.
+The three-way data partition provides a robust pipeline for
+ensemble calibration and parameter optimization in utility environments. Future research directions will focus on: Adapting
+the ensemble methodology to Medium and Long-Term Load
+Forecasting by integrating macroeconomic drivers; such as
+GDP growth and electrification rates, to inform multi-year
+infrastructure planning and capital investment strategies.
+REFERENCES
+[1] R. V. Klyuev, I. D. Morgoev, A. D. Morgoeva, O. A. Gavrina,
+N. V. Martyushev, E. A. Efremenkov, and Q. Mengxu, “Methods of
+forecasting electric energy consumption: A literature review,” Energies,
+vol. 15, no. 23, 2022. [Online]. Available: https://www.mdpi.com/1996-
+1073/15/23/8919
+[2] International Energy Agency, “Global energy review 2025,”
+Paris, 2025, licence: CC BY 4.0. [Online]. Available:
+https://www.iea.org/reports/global-energy-review-2025
+[3] L. Cascone, S. Sadiq, S. Ullah, S. Mirjalili, H. U. R.
+Siddiqui, and M. Umer, “Predicting household electric power
+consumption using multi-step time series with convolutional lstm,”
+Big Data Research, vol. 31, p. 100360, 2023. [Online]. Available:
+https://www.sciencedirect.com/science/article/pii/S2214579622000545
+[4] B. Dong, Z. Li, S. M. Rahman, and R. Vega, “A hybrid model approach
+for forecasting future residential electricity consumption,” Energy and
+Buildings, vol. 117, pp. 341–351, 2016.
+[5] E. Proedrou, “A comprehensive review of residential electricity load
+profile models,” IEEE Access, vol. 9, pp. 12 114–12 133, 2021.
+[6] T. Nacht, R. Pratter, J. Ganglbauer, A. Schibline, A. Aguayo,
+P. Fragkos, and E. Zisarou, “Modeling approaches for residential
+energy consumption: A literature review,” Climate, vol. 11, no. 9, 2023.
+[Online]. Available: https://www.mdpi.com/2225-1154/11/9/184
+[7] P. Biswas, A. Rashid, A. Biswas et al., “Ai-driven approaches for
+optimizing power consumption: A comprehensive survey,” Discover
+Artificial Intelligence, vol. 4, p. 116, 2024. [Online]. Available:
+https://doi.org/10.1007/s44163-024-00211-7
+[8] S. U. Khan, N. Khan, F. U. M. Ullah, M. J. Kim, M. Y. Lee, and
+S. W. Baik, “Towards intelligent building energy management: Aibased framework for power consumption and generation forecasting,”
+Energy and Buildings, vol. 279, p. 112705, 2023. [Online]. Available:
+https://www.sciencedirect.com/science/article/pii/S0378778822008763
+[9] F. Rodrigues, C. Cardeira, J. M. F. Calado, and R. Melicio,
+“Short-term load forecasting of electricity demand for the residential
+sector based on modelling techniques: A systematic review,” Energies,
+vol. 16, no. 10, 2023. [Online]. Available: https://www.mdpi.com/1996-
+1073/16/10/4098
+[10] A.-N. Khan, N. Iqbal, A. Rizwan, R. Ahmad, and D.-H. Kim,
+“An ensemble energy consumption forecasting model based on
+spatial-temporal clustering analysis in residential buildings,” Energies,
+vol. 14, no. 11, 2021. [Online]. Available: https://www.mdpi.com/1996-
+1073/14/11/3020
+[11] R. Mathumitha, P. Rathika, and K. Manimala, “Intelligent deep learning
+techniques for energy consumption forecasting in smart buildings: A
+review,” Artificial Intelligence Review, vol. 57, p. 35, 2024. [Online].
+Available: https://doi.org/10.1007/s10462-023-10660-8
+[12] M. Anvari, E. Proedrou, B. Schafer ¨ et al., “Data-driven load
+profiles and the dynamics of residential electricity consumption,”
+Nature Communications, vol. 13, p. 4593, 2022. [Online]. Available:
+https://doi.org/10.1038/s41467-022-31942-9
+[13] W. Yang, J. Shi, S. Li, Z. Song, Z. Zhang, and Z. Chen, “A combined
+deep learning load forecasting model of single household resident
+user considering multi-time scale electricity consumption behavior,”
+Applied Energy, vol. 307, p. 118197, 2022. [Online]. Available:
+https://www.sciencedirect.com/science/article/pii/S0306261921014665
+[14] P. Amin, L. Cherkasova, R. Aitken, and V. Kache, “Analysis and demand
+forecasting of residential energy consumption at multiple time scales.
+ifip,” in IEEE Integrated Network Management Symposium (IM’2019).
+[15] A. Gellert, U. Fiore, A. Florea, R. Chis, and F. Palmieri, “Forecasting
+electricity consumption and production in smart homes through statistical methods,” Sustainable Cities and Society, vol. 76, p. 103426, 2022.
+[16] L. Di Persio and N. Fraccarolo, “Energy consumption forecasts by
+gradient boosting regression trees,” Mathematics, vol. 11, no. 5, p. 1068,
+2023.
+[17] C. Tarmanini, N. Sarma, C. Gezegin, and O. Ozgonenel, “Short term
+load forecasting based on arima and ann approaches,” Energy Reports,
+vol. 9, pp. 550–557, 2023.
+[18] N. Shabbir, R. Ahmadiahangar, A. Rosin, M. Jawad, J. Kilter, and
+J. Martins, “Xgboost based short-term electrical load forecasting considering trends & periodicity in historical data,” in 2023 IEEE International
+Conference on Energy Technologies for Future Grids (ETFG). IEEE,
+2023, pp. 1–6.
+[19] H. I. Beloev, S. R. Saitov, A. A. Filimonova, N. D. Chichirova, O. E.
+Babikov, and I. K. Iliev, “Short-term electrical load forecasting based
+on xgboost model,” Energies, vol. 18, no. 19, p. 5144, 2025.
+[20] A. Muqtadir, B. Li, Z. Ying, C. Songsong, and S. N. Kazmi, “Nowcasting the next hour of residential load using boosting ensemble machines,”
+Scientific Reports, vol. 15, no. 1, p. 7157, 2025.
+[21] M. Abumohsen, A. Y. Owda, and M. Owda, “Electrical load forecasting
+using lstm, gru, and rnn algorithms,” Energies, vol. 16, no. 5, p. 2283,
+2023.
+[22] X. Ji, H. Huang, D. Chen, K. Yin, Y. Zuo, Z. Chen, and R. Bai, “A
+hybrid residential short-term load forecasting method using attention
+mechanism and deep learning,” Buildings, vol. 13, no. 1, p. 72, 2023.
+[23] Z. Yang, J. Li, C. Liu, and H. Wang, “Forecasting very short-term power
+load with hybrid interpretable deep models,” Systems Science & Control
+Engineering, vol. 13, no. 1, p. 2486136, 2025.
+[24] Z. Severiche-Maury, C. E. Uc-Rios, W. Arrubla-Hoyos, D. CamaPinto, J. A. Holgado-Terriza, M. Damas-Hermoso, and A. Cama-Pinto,
+“Forecasting residential energy consumption with the use of long shortterm memory recurrent neural networks,” Energies, vol. 18, no. 5, p.
+1247, 2025.
+[25] N. Buyo, A. Sheikh-Akbari, and F. Saleem, “An ensemble approach to
+predict a sustainable energy plan for london households,” Sustainability,
+vol. 17, no. 2, p. 500, 2025.
+[26] M. Dostmohammadi, M. Z. Pedram, S. Hoseinzadeh, and D. A. Garcia,
+“A ga-stacking ensemble approach for forecasting energy consumption
+in a smart household: A comparative study of ensemble methods,”
+Journal of Environmental Management, vol. 364, p. 121264, 2024.
+[27] A. M. Pirbazari, E. Sharma, A. Chakravorty, W. Elmenreich, and
+C. Rong, “An ensemble approach for multi-step ahead energy forecasting
+of household communities,” IEEE Access, vol. 9, pp. 36 218–36 240,
+2021.
+[28] G. Hebrail and A. Berard, “Individual household
+electric power consumption,” UCI Machine Learning
+Repository, 2006, [Dataset]. [Online]. Available:
+https://archive.ics.uci.edu/dataset/235/individual+household+electric+power+consumpti[29] Mexwell, “Smart home energy consumption,” Kaggle,
+2024, [Dataset; accessed: September 2025]. [Online]. Available: https://www.kaggle.com/datasets/mexwell/smart-home-energyconsumption
