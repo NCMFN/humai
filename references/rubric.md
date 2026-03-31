@@ -1,0 +1,8 @@
+- Sentence length variance (measured, not estimated)
+- Paragraph-opening diversity (no two consecutive paragraphs begin the same way)
+- Absence of flagged AI-signature phrases
+- Fact preservation integrity
+- Disciplinary register consistency
+- Citation and terminology accuracy
+- Logical flow without over-signposting
+- Absence of redundant summarization within the same section

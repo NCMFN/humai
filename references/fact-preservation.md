@@ -1,0 +1,7 @@
+- All quantitative results and their units
+- Statistical notation and p-values
+- Proper nouns and named methodologies
+- Citation keys and reference formatting
+- Section and subsection numbering
+- Author names, institutional affiliations, dataset names
+- Dates, geographic references, and version identifiers
