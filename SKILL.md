@@ -15,6 +15,7 @@ allowed-tools:
   - Grep
   - Glob
   - AskUserQuestion
+  - Bash
 ---
 
 # Humanizer: Remove AI Writing Patterns
@@ -390,29 +391,37 @@ Avoiding AI patterns is only half the job. Sterile, voiceless writing is just as
 
 ---
 
-## Process
+## Process (Iterative & Validated)
 
-1. Read the input text carefully
-2. Identify all instances of the patterns above
-3. Rewrite each problematic section
-4. Ensure the revised text:
-   - Sounds natural when read aloud
-   - Varies sentence structure naturally
-   - Uses specific details over vague claims
-   - Maintains appropriate tone for context
-   - Uses simple constructions (is/are/has) where appropriate
-5. Present a draft humanized version
-6. Prompt: "What makes the below so obviously AI generated?"
-7. Answer briefly with the remaining tells (if any)
+1. Read the input text carefully. If the document is long, process it iteratively (section-by-section) and wait for confirmation before proceeding to the next section.
+2. Refer to the reference rules before starting:
+   - Read `references/rubric.md` for quality constraints.
+   - Read `references/taboo-phrases.md` for restricted words.
+   - Read `references/fact-preservation.md` for elements that must not be modified.
+   - Read `references/edit-library.md` for stylistic substitutions.
+3. Identify all instances of AI patterns.
+4. Rewrite each problematic section, ensuring:
+   - Sounds natural when read aloud.
+   - Varies sentence structure naturally (Standard Deviation of sentence lengths >= 7).
+   - Paragraph-opening lexical diversity is >= 80%.
+   - Uses specific details over vague claims.
+   - Maintains appropriate tone for context (e.g., third-person academic).
+   - Uses simple constructions (is/are/has) where appropriate.
+   - Absolutely NO Category A taboo phrases remain.
+   - 100% of facts, metrics, and LaTeX commands are preserved intact.
+5. Output the Draft rewrite.
+6. Perform an Anti-AI pass analysis: "What makes the below so obviously AI generated?"
+7. Answer briefly with the remaining tells (if any).
 8. Prompt: "Now make it not obviously AI generated."
-9. Present the final version (revised after the audit)
+9. Output the Final rewrite.
+10. **MANDATORY**: Execute the validation pipeline script to verify the work. Run: `./router.sh <original_file> <humanized_file>` to run `check_facts.py`, `scan_banned_phrases.py`, `measure_readability.py`, and `flag_changes.py`. If validation fails, correct the errors immediately and rewrite again.
 
 ## Output Format
 
-Provide:
+For each section processed, strictly provide:
 1. Draft rewrite
-2. "What makes the below so obviously AI generated?" (brief bullets)
-3. Final rewrite
+2. Anti-AI pass analysis (bullet points identifying AI-generated characteristics)
+3. Final rewrite (with LaTeX-preserved structure)
 4. A brief summary of changes made (optional, if helpful)
 
 ---
