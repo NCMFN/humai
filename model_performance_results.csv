@@ -1,0 +1,4 @@
+Model,RMSE (Hours),MAE (Hours),R² Score
+Linear Regression,12.45,9.8,0.62
+Random Forest Regressor,8.32,6.15,0.78
+XGBoost Regressor,7.85,5.92,0.81
